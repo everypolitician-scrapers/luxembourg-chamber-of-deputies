@@ -66,6 +66,7 @@ def scrape_person(url)
   }
   data[:party] = @party[data[:party_id]]
   data[:image] = URI.join(url, URI.escape(data[:image])).to_s unless data[:image].to_s.empty?
+  data[:start_date] = '2013-11-13' if data[:start_date] < '2013-11-13'
   puts data[:name]
   ScraperWiki.save_sqlite([:id, :term], data)
 end
@@ -73,7 +74,7 @@ end
 term = { 
   id: '2013',
   name: '2013–',
-  start_date: 2013,
+  start_date: '2013-11-13',
   source: 'https://lb.wikipedia.org/wiki/Chamber',
 }
 ScraperWiki.save_sqlite([:id], term, 'terms')
