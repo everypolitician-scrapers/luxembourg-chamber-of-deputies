@@ -53,7 +53,7 @@ def scrape_person(url)
 
   data = { 
     id: url.to_s[/ref=(\d+)/, 1],
-    name: box.css('h1').text.tidy,
+    name: box.css('h1.swfReplace').text.tidy,
     birth_date: date_from(box.css('td.bgRed').text.tidy[/Née? le (.*)/, 1]),
     email: box.css('td.bgRed a[href*="mailto:"]/@href').text.sub('mailto:',''),
     tel: box.css('td.bgRed').text.tidy[/Tél.:\s*([\s\d]+)/, 1].to_s.tidy,
