@@ -54,7 +54,7 @@ def scrape_person(url)
   data = { 
     id: url.to_s[/ref=(\d+)/, 1],
     name: box.css('h1.swfReplace').text.tidy,
-    birth_date: date_from(box.css('td.bgRed').text.tidy[/Née? le (.*)/, 1]),
+    birth_date: date_from(box.css('td.bgRed').first.text.tidy[/Née? le (.*)/, 1]),
     email: box.css('td.bgRed a[href*="mailto:"]/@href').text.sub('mailto:',''),
     tel: box.css('td.bgRed').text.tidy[/Tél.:\s*([\s\d]+)/, 1].to_s.tidy,
     gender: gender_from(box),
@@ -67,7 +67,6 @@ def scrape_person(url)
   data[:party] = @party[data[:party_id]]
   data[:image] = URI.join(url, URI.escape(data[:image])).to_s unless data[:image].to_s.empty?
   data[:start_date] = '2013-11-13' if data[:start_date] < '2013-11-13'
-  puts data[:name]
   ScraperWiki.save_sqlite([:id, :term], data)
 end
 
