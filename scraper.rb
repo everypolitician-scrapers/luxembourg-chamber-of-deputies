@@ -70,13 +70,4 @@ def scrape_person(url)
   ScraperWiki.save_sqlite([:id, :term], data)
 end
 
-term = { 
-  id: '2013',
-  name: '2013–',
-  start_date: '2013-11-13',
-  source: 'https://lb.wikipedia.org/wiki/Chamber',
-}
-ScraperWiki.save_sqlite([:id], term, 'terms')
-
-
 scrape_list('http://www.chd.lu/wps/portal/public/!ut/p/b1/jY7LCoMwEEU_KZMxmmSpMcbYVoii1GzERSmCj03p99fuiqXU2V04594hnnTIJOU04oxciV-G53gfHuO6DNM7-6hPMW0ryxAMdwyw0AVv6jIwQbAB3ScglESwxp1PioZgBD_moxB1ZeKLlrJJwIKitXbJ1oTHfPhxMez8sFKAPE9cCC21ku3__wb-7Jf5Ot_I7Kcsy0T8AgGDGy8!/dl4/d5/L2dJQSEvUUt3QS80SmtFL1o2X0QyRFZSSTQyMDBFODkwSTBIQUwxQUMzQ0sy/')
