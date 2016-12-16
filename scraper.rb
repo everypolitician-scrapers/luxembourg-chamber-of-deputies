@@ -4,7 +4,6 @@
 require 'scraperwiki'
 require 'nokogiri'
 require 'open-uri'
-require 'colorize'
 
 require 'pry'
 require 'open-uri/cached'
@@ -26,7 +25,7 @@ def date_from(str)
   Date.parse(str).to_s rescue binding.pry
 end
 
-@party = Hash.new { |h, k| warn "Unknown party: #{k}".red }
+@party = Hash.new { |h, k| warn "Unknown party: #{k}" }
 @party['1472'] = 'DP'
 @party['919']  = 'LSAP'
 @party['1149'] = 'déi Gréng'
