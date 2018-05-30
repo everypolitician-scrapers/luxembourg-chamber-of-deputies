@@ -70,4 +70,4 @@ def scrape_person(url)
   ScraperWiki.save_sqlite([:id, :term], data)
 end
 
-scrape_list('http://www.chd.lu/wps/portal/public/!ut/p/b1/jY7LCoMwEEU_KZMxmmSpMcbYVoii1GzERSmCj03p99fuiqXU2V04594hnnTIJOU04oxciV-G53gfHuO6DNM7-6hPMW0ryxAMdwyw0AVv6jIwQbAB3ScglESwxp1PioZgBD_moxB1ZeKLlrJJwIKitXbJ1oTHfPhxMez8sFKAPE9cCC21ku3__wb-7Jf5Ot_I7Kcsy0T8AgGDGy8!/dl4/d5/L2dJQSEvUUt3QS80SmtFL1o2X0QyRFZSSTQyMDBFODkwSTBIQUwxQUMzQ0sy/')
+scrape_list('https://www.chd.lu/wps/portal/public/Accueil/OrganisationEtFonctionnement/Organisation/Deputes/DeputesEnFonction/!ut/p/z1/nZHJCsIwEIafxSfIZJKa5JjEmsaVtrjlIj2IFFq9iM9vEUXc6jK3gf__v1lIICvkigraFZwsSdgVx3JbHMr9rqiafhW66x725pnnCBBLBR4SPaLaMjtEsrgXSKsQvEtHQ0sjcFKQ8I0fpcwzp8exUjPTCCzN49Q0SXjvdyLlgIN4IGb5hDnGLn54Uxq-498AUWYBRWLSCObUK_4PX4PJ0DAAN8Vf-U-A3_zPgtB-nkmyrzdNSvi06IPgxaNbE5JrQtupPg1bh6p_Lpn70uvOCWS6a2I!/dz/d5/L2dBISEvZ0FBIS9nQSEh/')
