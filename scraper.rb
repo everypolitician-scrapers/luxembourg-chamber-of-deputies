@@ -1,9 +1,9 @@
 #!/bin/env ruby
 # encoding: utf-8
 
-require 'scraperwiki'
 require 'nokogiri'
 require 'open-uri'
+require 'scraperwiki'
 
 require 'pry'
 require 'open-uri/cached'
@@ -26,12 +26,12 @@ def date_from(str)
 end
 
 @party = Hash.new { |h, k| warn "Unknown party: #{k}" }
-@party['1472'] = 'DP'
-@party['919']  = 'LSAP'
-@party['1149'] = 'déi Gréng'
-@party['1511'] = 'CSV'
-@party['1081'] = 'Alternativ Demokratesch Reformpartei'
-@party['1361'] = 'déi Lénk'
+@party['298'] = 'DP'
+@party['299']  = 'LSAP'
+@party['301'] = 'déi Gréng'
+@party['297'] = 'CSV'
+@party['300'] = 'Alternativ Demokratesch Reformpartei'
+@party['302'] = 'déi Lénk'
 
 def gender_from(box)
   return 'female' if box.text.tidy.include? 'Députée d'
@@ -50,9 +50,9 @@ def scrape_person(url)
   noko = noko_for(url)
   box = noko.css('div#contentType1')
 
-  data = { 
+  data = {
     id: url.to_s[/ref=(\d+)/, 1],
-    name: box.css('h1.swfReplace').text.tidy,
+    name: box.css('h2.TitleOnly').text.tidy,
     birth_date: date_from(box.css('td.bgRed').first.text.tidy[/Née? le (.*)/, 1]),
     email: box.css('td.bgRed a[href*="mailto:"]/@href').text.sub('mailto:',''),
     tel: box.css('td.bgRed').text.tidy[/Tél.:\s*([\s\d]+)/, 1].to_s.tidy,
@@ -61,7 +61,7 @@ def scrape_person(url)
     image: box.css('td.visu img/@src').text,
     term: '2013',
     source: url.to_s,
-    party_id: box.css('td.bgBrown img/@src').text[/ref=(\d+)/, 1],
+    party_id: box.css('td.bgBrown a/@href').text[/codeGroupeQDN(\d+)/, 1],
   }
   data[:party] = @party[data[:party_id]]
   data[:image] = URI.join(url, URI.escape(data[:image])).to_s unless data[:image].to_s.empty?
