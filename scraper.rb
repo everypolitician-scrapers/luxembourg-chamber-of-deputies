@@ -66,6 +66,7 @@ def scrape_person(url)
   data[:party] = @party[data[:party_id]]
   data[:image] = URI.join(url, URI.escape(data[:image])).to_s unless data[:image].to_s.empty?
   data[:start_date] = '2013-11-13' if data[:start_date] < '2013-11-13'
+  puts data.reject { |_, v| v.to_s.empty? }.sort_by { |k, _| k }.to_h if ENV['MORPH_DEBUG']
   ScraperWiki.save_sqlite([:id, :term], data)
 end
 
