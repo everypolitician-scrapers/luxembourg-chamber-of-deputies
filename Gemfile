@@ -4,13 +4,9 @@
 
 source "https://rubygems.org"
 
-ruby "2.0.0"
+ruby "2.3.4"
 
-gem "scraperwiki", git: "https://github.com/openaustralia/scraperwiki-ruby.git", branch: "morph_defaults"
-gem "execjs"
-gem "pry"
-gem "colorize"
 gem "nokogiri"
 gem "open-uri-cached"
-gem "fuzzy_match"
-gem 'wikidata-client', '~> 0.0.7', require: 'wikidata'
+gem "pry"
+gem "scraperwiki", git: "https://github.com/openaustralia/scraperwiki-ruby.git", branch: "morph_defaults"
