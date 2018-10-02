@@ -53,7 +53,7 @@ def scrape_person(url)
     image: box.css('td.visu img/@src').text,
     term: '2013',
     source: url.to_s,
-    party_id: box.css('td.bgBrown a/@href').text[/codeGroupeQDN(\d+)/, 1],
+    party_id: box.css('a.arrow/@href').text[/CodeGroupe=(\d+)/, 1],
   }
   data[:party] = @party[data[:party_id]]
   data[:image] = URI.join(url, URI.escape(data[:image])).to_s unless data[:image].to_s.empty?
