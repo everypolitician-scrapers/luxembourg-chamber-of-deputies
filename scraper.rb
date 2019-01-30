@@ -1,6 +1,7 @@
 #!/bin/env ruby
 # encoding: utf-8
 
+require 'cgi'
 require 'nokogiri'
 require 'scraped'
 require 'scraperwiki'
@@ -43,7 +44,7 @@ def scrape_person(url)
   box = noko.css('div#contentType1')
 
   data = {
-    id: url.to_s[/ref=(\d+)/, 1],
+    id: CGI.parse(url.query)['ref'].first,
     name: box.css('h2.TitleOnly').text.tidy,
     birth_date: date_from(box.css('td.bgRed').first.text.tidy[/Née? le (.*)/, 1]),
     email: box.css('td.bgRed a[href*="mailto:"]/@href').text.sub('mailto:',''),
@@ -51,13 +52,13 @@ def scrape_person(url)
     gender: gender_from(box),
     start_date: date_from(box.css('div.fonctionsPersonnesQualifiees li').text.tidy[/Députée?.*?depuis le (\d+\/\d+\/\d+)/, 1]),
     image: box.css('td.visu img/@src').text,
-    term: '2013',
+    term: '2018',
     source: url.to_s,
     party_id: box.css('a.arrow/@href').text[/CodeGroupe=(\d+)/, 1],
   }
   data[:party] = @party[data[:party_id]]
   data[:image] = URI.join(url, URI.escape(data[:image])).to_s unless data[:image].to_s.empty?
-  data[:start_date] = '2013-11-13' if data[:start_date] < '2013-11-13'
+  data[:start_date] = '2018-10-30' if data[:start_date] < '2018-10-30'
   puts data.reject { |_, v| v.to_s.empty? }.sort_by { |k, _| k }.to_h if ENV['MORPH_DEBUG']
   ScraperWiki.save_sqlite([:id, :term], data)
 end
