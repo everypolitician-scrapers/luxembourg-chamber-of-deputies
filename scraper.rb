@@ -32,14 +32,14 @@ def gender_from(box)
   raise "Can't find"
 end
 
-def scrape_list(url)
+def list_data(url)
   noko = noko_for(url)
-  noko.css('a[href*="/FicheDepute"]/@href').each do |mp|
-    scrape_person(URI.join url, mp.text)
+  noko.css('a[href*="/FicheDepute"]/@href').map do |mp|
+    person_data(URI.join url, mp.text)
   end
 end
 
-def scrape_person(url)
+def person_data(url)
   noko = noko_for(url)
   box = noko.css('div#contentType1')
 
@@ -59,8 +59,11 @@ def scrape_person(url)
   data[:party] = @party[data[:party_id]]
   data[:image] = URI.join(url, URI.escape(data[:image])).to_s unless data[:image].to_s.empty?
   data[:start_date] = '2018-10-30' if data[:start_date] < '2018-10-30'
-  puts data.reject { |_, v| v.to_s.empty? }.sort_by { |k, _| k }.to_h if ENV['MORPH_DEBUG']
-  ScraperWiki.save_sqlite([:id, :term], data)
+  data
 end
 
-scrape_list('https://www.chd.lu/wps/portal/public/Accueil/OrganisationEtFonctionnement/Organisation/Deputes/DeputesEnFonction/!ut/p/z1/nZHJCsIwEIafxSfIZJKa5JjEmsaVtrjlIj2IFFq9iM9vEUXc6jK3gf__v1lIICvkigraFZwsSdgVx3JbHMr9rqiafhW66x725pnnCBBLBR4SPaLaMjtEsrgXSKsQvEtHQ0sjcFKQ8I0fpcwzp8exUjPTCCzN49Q0SXjvdyLlgIN4IGb5hDnGLn54Uxq-498AUWYBRWLSCObUK_4PX4PJ0DAAN8Vf-U-A3_zPgtB-nkmyrzdNSvi06IPgxaNbE5JrQtupPg1bh6p_Lpn70uvOCWS6a2I!/dz/d5/L2dBISEvZ0FBIS9nQSEh/')
+data = list_data('https://www.chd.lu/wps/portal/public/Accueil/OrganisationEtFonctionnement/Organisation/Deputes/DeputesEnFonction/!ut/p/z1/nZHJCsIwEIafxSfIZJKa5JjEmsaVtrjlIj2IFFq9iM9vEUXc6jK3gf__v1lIICvkigraFZwsSdgVx3JbHMr9rqiafhW66x725pnnCBBLBR4SPaLaMjtEsrgXSKsQvEtHQ0sjcFKQ8I0fpcwzp8exUjPTCCzN49Q0SXjvdyLlgIN4IGb5hDnGLn54Uxq-498AUWYBRWLSCObUK_4PX4PJ0DAAN8Vf-U-A3_zPgtB-nkmyrzdNSvi06IPgxaNbE5JrQtupPg1bh6p_Lpn70uvOCWS6a2I!/dz/d5/L2dBISEvZ0FBIS9nQSEh/')
+data.each { |mem| puts mem.reject { |_, v| v.to_s.empty? }.sort_by { |k, _| k }.to_h } if ENV['MORPH_DEBUG']
+
+ScraperWiki.sqliteexecute('DROP TABLE data') rescue nil
+ScraperWiki.save_sqlite([:id, :term], data)
