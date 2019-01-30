@@ -18,13 +18,15 @@ def date_from(str)
   Date.parse(str).to_s rescue binding.pry
 end
 
-@party = Hash.new { |h, k| warn "Unknown party: #{k}" }
-@party['298'] = 'DP'
-@party['299']  = 'LSAP'
-@party['301'] = 'déi Gréng'
-@party['297'] = 'CSV'
-@party['300'] = 'Alternativ Demokratesch Reformpartei'
-@party['302'] = 'déi Lénk'
+@party = Hash.new { |h, k| warn "Unknown party: #{k}" }.merge({
+  '298' => 'DP',
+  '299' => 'LSAP',
+  '301' => 'déi Gréng',
+  '297' => 'CSV',
+  '300' => 'Alternativ Demokratesch Reformpartei',
+  '302' => 'déi Lénk',
+  '668' => 'Piraten',
+})
 
 def gender_from(box)
   return 'female' if box.text.tidy.include? 'Députée d'
