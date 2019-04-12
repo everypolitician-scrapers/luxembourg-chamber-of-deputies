@@ -94,7 +94,7 @@ class MemberPage < Scraped::HTML
   end
 
   def raw_start
-    date_from(box.css('div.fonctionsPersonnesQualifiees li').text.tidy[/Députée?.*?depuis le (\d+\/\d+\/\d+)/, 1])
+    date_from(box.css('div.fonctionsPersonneQualifiee li').text.tidy[/Députée?.*?depuis le (\d+\/\d+\/\d+)/, 1])
   end
 
   def date_from(str)
