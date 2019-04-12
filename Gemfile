@@ -11,7 +11,7 @@ gem 'open-uri-cached'
 gem 'rake'
 gem 'rest-client'
 gem 'rubocop'
-gem 'scraped', github: 'everypolitician/scraped'
+gem 'scraped', github: 'everypolitician/scraped', branch: 'scraper-class'
 gem 'scraper_test', github: 'everypolitician/scraper_test'
 gem 'scraperwiki', github: 'openaustralia/scraperwiki-ruby', branch: 'morph_defaults'
 
