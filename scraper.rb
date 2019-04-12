@@ -1,71 +1,117 @@
 #!/bin/env ruby
 # encoding: utf-8
 
-require 'cgi'
-require 'nokogiri'
+require 'pry'
 require 'scraped'
 require 'scraperwiki'
 
 require 'open-uri/cached'
 OpenURI::Cache.cache_path = '.cache'
 
-def noko_for(url)
-  Nokogiri::HTML(open(url).read)
-end
+class MembersPage < Scraped::HTML
+  decorator Scraped::Response::Decorator::CleanUrls
 
-def date_from(str)
-  return if str.to_s.empty?
-  Date.parse(str).to_s rescue binding.pry
-end
+  field :members do
+    member_urls.map { |memurl| Scraped::Scraper.new(memurl => MemberPage).scraper.to_h }
+  end
 
-@party = Hash.new { |h, k| warn "Unknown party: #{k}" }.merge({
-  '298' => 'DP',
-  '299' => 'LSAP',
-  '301' => 'déi Gréng',
-  '297' => 'CSV',
-  '300' => 'Alternativ Demokratesch Reformpartei',
-  '302' => 'déi Lénk',
-  '668' => 'Piraten',
-})
+  private
 
-def gender_from(box)
-  return 'female' if box.text.tidy.include? 'Députée d'
-  return 'male' if box.text.tidy.include? 'Député d'
-  raise "Can't find"
-end
-
-def list_data(url)
-  noko = noko_for(url)
-  noko.css('a[href*="/FicheDepute"]/@href').map do |mp|
-    person_data(URI.join url, mp.text)
+  def member_urls
+    noko.css('a[href*="/FicheDepute"]/@href').map(&:text)
   end
 end
 
-def person_data(url)
-  noko = noko_for(url)
-  box = noko.css('div#contentType1')
+class MemberPage < Scraped::HTML
+  require 'cgi'
+  decorator Scraped::Response::Decorator::CleanUrls
 
-  data = {
-    id: CGI.parse(url.query)['ref'].first,
-    name: box.css('h2.TitleOnly').text.tidy,
-    birth_date: date_from(box.css('td.bgRed').first.text.tidy[/Née? le (.*)/, 1]),
-    email: box.css('td.bgRed a[href*="mailto:"]/@href').text.sub('mailto:',''),
-    tel: box.css('td.bgRed').text.tidy[/Tél.:\s*([\s\d]+)/, 1].to_s.tidy,
-    gender: gender_from(box),
-    start_date: date_from(box.css('div.fonctionsPersonnesQualifiees li').text.tidy[/Députée?.*?depuis le (\d+\/\d+\/\d+)/, 1]),
-    image: box.css('td.visu img/@src').text,
-    term: '2018',
-    source: url.to_s,
-    party_id: box.css('a.arrow/@href').text[/CodeGroupe=(\d+)/, 1],
-  }
-  data[:party] = @party[data[:party_id]]
-  data[:image] = URI.join(url, URI.escape(data[:image])).to_s unless data[:image].to_s.empty?
-  data[:start_date] = '2018-10-30' if data[:start_date] < '2018-10-30'
-  data
+  field :id do
+    CGI.parse(url.query)['ref'].first
+  end
+
+  field :name do
+    box.css('h2.TitleOnly').text.tidy
+  end
+
+  field :birth_date do
+    date_from(box.css('td.bgRed').first.text.tidy[/Née? le (.*)/, 1])
+  end
+
+  field :email do
+    box.css('td.bgRed a[href*="mailto:"]/@href').text.sub('mailto:','').tidy
+  end
+
+  field :tel do
+    box.css('td.bgRed').text.tidy[/Tél.:\s*([\s\d]+)/, 1].to_s.tidy
+  end
+
+  field :gender do
+    return 'female' if box.text.tidy.include? 'Députée d'
+    return 'male' if box.text.tidy.include? 'Député d'
+    raise "No gender"
+  end
+
+  field :start_date do
+    return '2018-10-30' if raw_start < '2018-10-30'
+    raw_start
+  end
+
+  field :image do
+    box.css('td.visu img/@src').text
+  end
+
+  field :term do
+    '2018'
+  end
+
+  field :source do
+    url.to_s
+  end
+
+  field :party_id do
+    box.css('a.arrow/@href').text[/CodeGroupe=(\d+)/, 1]
+  end
+
+  field :party do
+    PARTY[party_id] rescue binding.pry
+  end
+
+  private
+
+  PARTY = Hash.new { |h, k| warn "Unknown party: #{k}" }.merge({
+    '298' => 'DP',
+    '299' => 'LSAP',
+    '301' => 'déi Gréng',
+    '297' => 'CSV',
+    '300' => 'Alternativ Demokratesch Reformpartei',
+    '302' => 'déi Lénk',
+    '668' => 'Piraten',
+  })
+
+  def box
+    noko.css('div#contentType1')
+  end
+
+  def raw_start
+    date_from(box.css('div.fonctionsPersonnesQualifiees li').text.tidy[/Députée?.*?depuis le (\d+\/\d+\/\d+)/, 1])
+  end
+
+  def date_from(str)
+    return if str.to_s.empty?
+    Date.parse(str).to_s rescue binding.pry
+  end
+
+  def url
+    URI.parse super
+  end
 end
 
-data = list_data('https://www.chd.lu/wps/portal/public/Accueil/OrganisationEtFonctionnement/Organisation/Deputes/DeputesEnFonction/!ut/p/z1/nZHJCsIwEIafxSfIZJKa5JjEmsaVtrjlIj2IFFq9iM9vEUXc6jK3gf__v1lIICvkigraFZwsSdgVx3JbHMr9rqiafhW66x725pnnCBBLBR4SPaLaMjtEsrgXSKsQvEtHQ0sjcFKQ8I0fpcwzp8exUjPTCCzN49Q0SXjvdyLlgIN4IGb5hDnGLn54Uxq-498AUWYBRWLSCObUK_4PX4PJ0DAAN8Vf-U-A3_zPgtB-nkmyrzdNSvi06IPgxaNbE5JrQtupPg1bh6p_Lpn70uvOCWS6a2I!/dz/d5/L2dBISEvZ0FBIS9nQSEh/')
-data.each { |mem| puts mem.reject { |_, v| v.to_s.empty? }.sort_by { |k, _| k }.to_h } if ENV['MORPH_DEBUG']
+def scraper(h)
+  url, klass = h.to_a.first
+  klass.new(response: Scraped::Request.new(url: url).response)
+end
 
-ScraperWiki.sqliteexecute('DROP TABLE data') rescue nil
-ScraperWiki.save_sqlite([:id, :term], data)
+url = 'https://www.chd.lu/wps/portal/public/Accueil/OrganisationEtFonctionnement/Organisation/Deputes/DeputesEnFonction/!ut/p/z1/nZHJCsIwEIafxSfIZJKa5JjEmsaVtrjlIj2IFFq9iM9vEUXc6jK3gf__v1lIICvkigraFZwsSdgVx3JbHMr9rqiafhW66x725pnnCBBLBR4SPaLaMjtEsrgXSKsQvEtHQ0sjcFKQ8I0fpcwzp8exUjPTCCzN49Q0SXjvdyLlgIN4IGb5hDnGLn54Uxq-498AUWYBRWLSCObUK_4PX4PJ0DAAN8Vf-U-A3_zPgtB-nkmyrzdNSvi06IPgxaNbE5JrQtupPg1bh6p_Lpn70uvOCWS6a2I!/dz/d5/L2dBISEvZ0FBIS9nQSEh/'
+
+Scraped::Scraper.new(url => MembersPage).store(:members)
