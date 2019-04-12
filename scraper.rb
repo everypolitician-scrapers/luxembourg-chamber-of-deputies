@@ -35,7 +35,7 @@ class MemberPage < Scraped::HTML
   end
 
   field :birth_date do
-    date_from(box.css('td.bgRed').first.text.tidy[/Née? le (.*)/, 1])
+    date_from(box.css('td.bgRed').first.text.tidy[/Date de naissance: (.*?) /, 1])
   end
 
   field :email do
