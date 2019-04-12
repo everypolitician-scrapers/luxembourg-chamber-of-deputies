@@ -39,7 +39,7 @@ class MemberPage < Scraped::HTML
   end
 
   field :email do
-    box.css('td.bgRed a[href*="mailto:"]/@href').text.sub('mailto:','').tidy
+    box.css('td.bgRed a[href*="mailto:"]/@href').text.sub('mailto:','').gsub('%20',' ').tidy
   end
 
   field :tel do
